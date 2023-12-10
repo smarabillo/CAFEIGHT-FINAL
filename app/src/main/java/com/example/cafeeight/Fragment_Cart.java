@@ -1,5 +1,6 @@
 package com.example.cafeeight;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -59,13 +60,36 @@ public class Fragment_Cart extends Fragment {
             }
 
             @Override
-            public void onTrashButtonClick(int position) {
-                // Remove the item from the cart
-                if (position >= 0 && position < cartAdapter.fragmentCartItems.size()) {
-                    cartAdapter.fragmentCartItems.remove(position);
-                    cartAdapter.notifyItemRemoved(position);
-                    updateTotalAmount();
-                }
+            public void onTrashButtonClick(final int position) {
+                // Create a confirmation dialog
+                AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                builder.setTitle("Remove Item");
+                builder.setMessage("Are you sure you want to remove this item from the cart?");
+
+                // Add buttons to the dialog
+                builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Remove the item from the cart
+                        if (position >= 0 && position < cartAdapter.fragmentCartItems.size()) {
+                            cartAdapter.fragmentCartItems.remove(position);
+                            cartAdapter.notifyItemRemoved(position);
+                            updateTotalAmount();
+                        }
+                        dialog.dismiss(); // Dismiss the dialog after removing the item
+                    }
+                });
+
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss(); // Dismiss the dialog if the user clicks "No"
+                    }
+                });
+
+                // Show the dialog
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
             }
 
         });
