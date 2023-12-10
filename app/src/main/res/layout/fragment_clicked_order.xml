@@ -11,7 +11,7 @@
         android:id="@+id/addToCartBtn"
         android:layout_width="270dp"
         android:layout_height="64dp"
-        android:backgroundTint="#4CAF50"
+        android:backgroundTint="@color/blue"
         android:elevation="510dp"
         android:gravity="center"
         android:text="Add to Cart"
@@ -33,7 +33,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.365">
+        app:layout_constraintVertical_bias="0.304">
 
         <ImageView
             android:id="@+id/imageView"
@@ -78,4 +78,15 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.672" />
 
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="213dp"
+        android:layout_height="37dp"
+        android:layout_marginTop="44dp"
+        android:text="View Product"
+        android:textAlignment="center"
+        android:textSize="25dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

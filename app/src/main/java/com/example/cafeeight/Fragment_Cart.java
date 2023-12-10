@@ -8,12 +8,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.List;
 
 public class Fragment_Cart extends Fragment {
@@ -45,7 +47,29 @@ public class Fragment_Cart extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
 
         // Initialize and set the CartAdapter
-        cartAdapter = new CartAdapter(fragmentCartItems);
+        cartAdapter = new CartAdapter(fragmentCartItems, new CartAdapter.OnItemClickListener() {
+            @Override
+            public void onMinusButtonClick(int position) {
+                updateItemQuantity(position, -1);
+            }
+
+            @Override
+            public void onPlusButtonClick(int position) {
+                updateItemQuantity(position, 1);
+            }
+
+            @Override
+            public void onTrashButtonClick(int position) {
+                // Remove the item from the cart
+                if (position >= 0 && position < cartAdapter.fragmentCartItems.size()) {
+                    cartAdapter.fragmentCartItems.remove(position);
+                    cartAdapter.notifyItemRemoved(position);
+                    updateTotalAmount();
+                }
+            }
+
+        });
+
         recyclerView.setAdapter(cartAdapter);
 
         // Initialize the database helper only if it is not already initialized
@@ -62,6 +86,7 @@ public class Fragment_Cart extends Fragment {
 
         return view;
     }
+
     // Update the total amount display
     private void updateTotalAmount() {
         double totalAmount = calculateTotalAmount();
@@ -86,7 +111,6 @@ public class Fragment_Cart extends Fragment {
     }
 
     // Update the quantity of an item in the cart
-    // Inside the updateItemQuantity method in Fragment_Cart
     private void updateItemQuantity(int position, int quantityDelta) {
         int currentQuantity = cartAdapter.fragmentCartItems.get(position).getQuantity();
         double originalPrice = cartAdapter.fragmentCartItems.get(position).getOriginalPrice();
@@ -95,8 +119,16 @@ public class Fragment_Cart extends Fragment {
         // Update the quantity based on the delta
         currentQuantity += quantityDelta;
 
-        // Check if the new quantity is valid
-        if (currentQuantity <= 0) {
+        // Check if the new quantity is 0, if so, remove the item from the cart
+        if (currentQuantity == 0) {
+            cartAdapter.fragmentCartItems.remove(position);
+            cartAdapter.notifyItemRemoved(position);
+            updateTotalAmount();
+            return;
+        }
+
+        // Check if the new quantity is valid (not negative)
+        if (currentQuantity < 0) {
             Toast.makeText(requireContext(), "Quantity cannot be negative.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -125,7 +157,6 @@ public class Fragment_Cart extends Fragment {
         // Update total amount and items
         updateTotalAmount();
     }
-
 
     // Perform the checkout process
     private void performCheckout(double totalAmount, int totalItems) {
@@ -192,7 +223,6 @@ public class Fragment_Cart extends Fragment {
         updateTotalAmount(); // Update total amount after clearing the cart
     }
 
-
     // Save the order details in the database
     private long saveOrderInDatabase(double totalAmount, int totalItems) {
         return DatabaseHelper.insertOrder(getContext(), totalAmount, totalItems);
@@ -229,11 +259,21 @@ public class Fragment_Cart extends Fragment {
     }
 
     // CartAdapter class
-    public class CartAdapter extends RecyclerView.Adapter<CartViewHolder> {
+    public static class CartAdapter extends RecyclerView.Adapter<CartViewHolder> {
         private List<Class_CartItem> fragmentCartItems;
+        private OnItemClickListener itemClickListener;
 
-        public CartAdapter(List<Class_CartItem> fragmentCartItems) {
+        // Interface to handle item click events
+        public interface OnItemClickListener {
+            void onMinusButtonClick(int position);
+            void onPlusButtonClick(int position);
+            void onTrashButtonClick(int position);
+        }
+
+        // Constructor
+        public CartAdapter(List<Class_CartItem> fragmentCartItems, OnItemClickListener itemClickListener) {
             this.fragmentCartItems = fragmentCartItems;
+            this.itemClickListener = itemClickListener;
         }
 
         // Update the dataset of the adapter
@@ -248,14 +288,14 @@ public class Fragment_Cart extends Fragment {
         public CartViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_cartitem, parent, false);
             return new CartViewHolder(view);
+
         }
 
         // Bind data to view holders
         @Override
         public void onBindViewHolder(@NonNull CartViewHolder holder, int position) {
-            // Full update without payload
             Class_CartItem fragmentCartItem = fragmentCartItems.get(position);
-            holder.bind(fragmentCartItem);
+            holder.bind(fragmentCartItem, itemClickListener);
         }
 
         // Return the size of the dataset
@@ -266,10 +306,11 @@ public class Fragment_Cart extends Fragment {
     }
 
     // View holder for the cart items
-    public class CartViewHolder extends RecyclerView.ViewHolder {
-        private ImageView minusQty, plusQty, itemImage;
+    public static class CartViewHolder extends RecyclerView.ViewHolder {
+        private ImageView minusQty, plusQty, itemImage, trashBtn;
         private TextView itemNameTxt, quantityTxt, priceTxt;
 
+        // Constructor
         public CartViewHolder(@NonNull View itemView) {
             super(itemView);
             // Initialize views in the view holder
@@ -279,10 +320,11 @@ public class Fragment_Cart extends Fragment {
             priceTxt = itemView.findViewById(R.id.priceTxt);
             minusQty = itemView.findViewById(R.id.minusQtyBtn);
             plusQty = itemView.findViewById(R.id.addQtyBtn);
+            trashBtn = itemView.findViewById(R.id.trashBtn);
         }
 
         // Bind data to views in the view holder
-        public void bind(Class_CartItem fragmentCartItem) {
+        public void bind(Class_CartItem fragmentCartItem, CartAdapter.OnItemClickListener itemClickListener) {
             // Load item image using the resource ID
             itemImage.setImageResource(fragmentCartItem.getImageResourceId());
 
@@ -291,8 +333,25 @@ public class Fragment_Cart extends Fragment {
             priceTxt.setText("Price: " + fragmentCartItem.getTotalPrice());
 
             // Set click listeners for quantity adjustment buttons
-            minusQty.setOnClickListener(v -> updateItemQuantity(getAdapterPosition(), -1)); // Subtract quantity
-            plusQty.setOnClickListener(v -> updateItemQuantity(getAdapterPosition(), 1)); // Add quantity
+            minusQty.setOnClickListener(v -> {
+                if (itemClickListener != null) {
+                    itemClickListener.onMinusButtonClick(getAdapterPosition());
+                }
+            });
+
+            plusQty.setOnClickListener(v -> {
+                if (itemClickListener != null) {
+                    itemClickListener.onPlusButtonClick(getAdapterPosition());
+                }
+            });
+
+            // Set click listener for trash button
+            trashBtn.setOnClickListener(v -> {
+                if (itemClickListener != null) {
+                    itemClickListener.onTrashButtonClick(getAdapterPosition());
+                }
+            });
         }
+
     }
 }

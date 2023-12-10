@@ -18,8 +18,8 @@
 
     <LinearLayout
         android:id="@+id/linearLayout7"
-        android:layout_width="191dp"
-        android:layout_height="match_parent"
+        android:layout_width="156dp"
+        android:layout_height="90dp"
         android:orientation="vertical"
         android:padding="9dp">
 
@@ -64,25 +64,35 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="75dp"
-        android:layout_height="match_parent"
+        android:layout_width="102dp"
+        android:layout_height="90dp"
         android:orientation="horizontal"
         android:paddingTop="30dp">
 
 
         <ImageView
             android:id="@+id/minusQtyBtn"
-            android:layout_width="wrap_content"
+            android:layout_width="35dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:background="@drawable/container_cart"
             app:srcCompat="@drawable/icon_minus" />
 
         <ImageView
             android:id="@+id/addQtyBtn"
-            android:layout_width="wrap_content"
+            android:layout_width="35dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:background="@drawable/container_cart"
             app:srcCompat="@drawable/icon_add" />
+
+        <ImageView
+            android:id="@+id/trashBtn"
+            android:layout_width="38dp"
+            android:layout_height="24dp"
+            android:layout_weight="1"
+            android:paddingLeft="10dp"
+            app:srcCompat="@drawable/icon_trash" />
     </LinearLayout>
 
 </LinearLayout>

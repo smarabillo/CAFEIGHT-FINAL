@@ -13,9 +13,8 @@ import java.util.List;
 public class Fragment_Clickedorder extends AppCompatActivity {
 
     // UI components
-    private ImageView imageView;
+    private ImageView imageView, cartBtn;
     private TextView textView;
-    private TextView numberOrderTxt;
     private TextView priceTxt;
     private TextView addToCartBtn;
     private TextView clearCartBtn;
@@ -57,8 +56,6 @@ public class Fragment_Clickedorder extends AppCompatActivity {
                 updatePrice();
             }
         }
-
-
         // Set click listener for add to cart button
         addToCartBtn.setOnClickListener(view -> addToCart());
     }

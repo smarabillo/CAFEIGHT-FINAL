@@ -37,10 +37,9 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
-                android:layout_width="365dp"
-                android:layout_height="434dp"
+                android:layout_width="374dp"
+                android:layout_height="429dp"
                 android:layout_marginTop="20dp"
-                android:background="@drawable/container_cart"
                 app:layout_constraintBottom_toTopOf="@+id/ItemTotal"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.511"
@@ -89,6 +88,7 @@
                 android:layout_marginTop="620dp"
                 android:elevation="8dp"
                 android:text="Place Order"
+                android:backgroundTint="@color/blue"
                 android:textColor="@android:color/white"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
